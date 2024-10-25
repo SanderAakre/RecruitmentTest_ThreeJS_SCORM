@@ -10,17 +10,6 @@ export function createBox(scene) {
   return cube;
 }
 
-export function addLights(scene) {
-  // Add ambient light for general illumination
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
-  scene.add(ambientLight);
-
-  // Add a point light for dynamic lighting
-  const pointLight = new THREE.PointLight(0xffffff, 1000); // Bright white light
-  pointLight.position.set(20, 10, 10); // Set position of the point light
-  scene.add(pointLight);
-}
-
 export function handleInfoIcon(camera, cube, iconElement, iconwidth) {
   const backFaceNormal = new THREE.Vector3(0, 0, -1); // Assuming negative Z is the back face
   backFaceNormal.applyQuaternion(cube.quaternion); // Adjust to cube's rotation

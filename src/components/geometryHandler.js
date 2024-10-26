@@ -1,13 +1,62 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { TextureLoader } from "three/src/loaders/TextureLoader";
 
 export function createBox(scene) {
   // Create the cube with a material that reacts to light
   const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // Solid green color that reacts to light
+  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
 
   return cube;
+}
+
+export function loadModel(scene, modelName) {
+  const loader = new GLTFLoader();
+  const textureLoader = new TextureLoader();
+
+  const baseColorMap = textureLoader.load(
+    "models/" + modelName + "/" + modelName + "_BaseColor.png"
+  );
+  const normalMap = textureLoader.load(
+    "models/" + modelName + "/" + modelName + "_Normal.png"
+  );
+  const ormMap = textureLoader.load(
+    "models/" + modelName + "/" + modelName + "_ORM.png"
+  );
+  baseColorMap.flipY = false;
+  normalMap.flipY = false;
+  ormMap.flipY = false;
+
+  loader.load("models/" + modelName + "/" + modelName + ".glb", (gltf) => {
+    const model = gltf.scene;
+    model.rotation.y = Math.PI;
+    model.traverse(function (node) {
+      if (node.isMesh) {
+        node.material = new THREE.MeshPhysicalMaterial({
+          map: baseColorMap,
+          normalMap: normalMap,
+          // aoMap: ormMap,
+          // aoMapIntensity: 1,
+          roughnessMap: ormMap,
+          roughness: 1,
+          metalnessMap: ormMap,
+          metalness: 1,
+          reflectivity: 0.5,
+          clearcoat: 0.2,
+          clearcoatRoughness: 0.3,
+        });
+        // Enable shadows
+        node.castShadow = true;
+        node.receiveShadow = true;
+        // Update the material
+        node.material.needsUpdate = true;
+      }
+    });
+
+    scene.add(model);
+  });
 }
 
 export function handleInfoIcon(camera, cube, iconElement, iconwidth) {

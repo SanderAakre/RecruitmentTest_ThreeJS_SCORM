@@ -1,5 +1,4 @@
-// infoModal.js
-export function showModal() {
+export function showModal(url) {
   const modal = document.createElement("div");
   modal.classList.add(
     "fixed",
@@ -32,22 +31,48 @@ export function showModal() {
 
   document.body.appendChild(modal);
 
-  // Fetch content from WordPress (replace URL with your WordPress API endpoint)
-  fetch("https://jsonplaceholder.typicode.com/posts/1") // Example placeholder API
-    .then((response) => response.json())
-    .then((data) => {
-      modalContent.innerHTML = `
-        <button id="modal-close" class="absolute top-2 right-2 text-2xl font-bold text-gray-700 hover:text-black">&times;</button>
-        <h2 class="text-2xl font-bold mb-4">${data.title}</h2>
-        <p class="mb-4">${data.body}</p>
-      `;
+  // Fetch the WordPress page content
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to load content: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then((html) => {
+      // Create a temporary DOM element to parse the HTML
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
 
-      // Add event listener to close modal on "X" button click
-      document.getElementById("modal-close").addEventListener("click", () => {
+      // Extract and set the content in the modal (e.g., main content div)
+      const wordpressContent = tempDiv.querySelector(".entry-content"); // Adjust as per WordPress theme structure
+      if (wordpressContent) {
+        modalContent.innerHTML = wordpressContent.innerHTML;
+      } else {
+        modalContent.innerHTML =
+          "<p>Content could not be loaded. Please try again later.</p>";
+      }
+
+      // Add a close button
+      const closeButton = document.createElement("button");
+      closeButton.id = "modal-close";
+      closeButton.innerHTML = "&times;";
+      closeButton.classList.add(
+        "absolute",
+        "top-2",
+        "right-2",
+        "text-2xl",
+        "font-bold",
+        "text-gray-700",
+        "hover:text-black"
+      );
+      closeButton.addEventListener("click", () => {
         modal.remove();
       });
+      modalContent.appendChild(closeButton);
     })
     .catch((error) => {
+      console.error("Error loading modal content:", error);
       modalContent.innerHTML = `<p class="text-red-500">Failed to fetch content. Please try again later.</p>`;
     });
 

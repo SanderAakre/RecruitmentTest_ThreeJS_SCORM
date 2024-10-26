@@ -1,8 +1,9 @@
+// main.js
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createIcon } from "./components/infoIcon.js";
 import { loadModel } from "./components/geometryHandler.js";
 import { createEnvironment } from "./components/environmentHandler.js";
+import { updateIcons } from "./components/iconUpdateHandler.js";
 
 // Set up the scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -21,36 +22,32 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; // Tone mapping for more stylish rendering
 renderer.toneMappingExposure = 0.8;
-
+renderer.outputEncoding = THREE.sRGBEncoding;
 
 // Add camera controls
 const controls = new OrbitControls(camera, renderer.domElement);
+camera.position.z = 20;
 
 // Add lighting and HDR environment
 createEnvironment(scene, renderer, camera);
 
-// Set icon width and create the icon element
-const iconWidth = 40;
-const iconElement = createIcon(iconWidth);
-
-// Create the aircraft model
+// Load the airplane model
 const modelName = "airplane";
-loadModel(scene, modelName);
-// const updateIconPosition = handleInfoIcon(camera, model, iconElement, iconWidth); // This function updates icon position
+let model;
 
-// Set camera position
-camera.position.z = 20;
+loadModel(scene, modelName).then((loadedModel) => {
+  model = loadedModel;
+  scene.add(model);
+});
 
 function animate() {
   requestAnimationFrame(animate);
-
-  // Update controls
   controls.update();
 
-  // Update the position of the icon based on cube and camera position
-  // updateIconPosition();
+  if (model) {
+    updateIcons(model, camera); // Call icon update handler
+  }
 
-  // Render the scene
   renderer.render(scene, camera);
 }
 

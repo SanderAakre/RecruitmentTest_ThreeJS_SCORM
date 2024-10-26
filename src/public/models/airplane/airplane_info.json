@@ -1,0 +1,20 @@
+[
+  {
+    "id": "engineLeft",
+    "wordpressLink": "https://example.com/wp-content/engine-info",
+    "position": { "x": 1.5, "y": 0.8, "z": -1.2 },
+    "direction": { "x": 0, "y": 0, "z": 1 }
+  },
+  {
+    "id": "engineRight",
+    "wordpressLink": "https://example.com/wp-content/engine-info",
+    "position": { "x": 1.5, "y": 0.8, "z": 1.2 },
+    "direction": { "x": 0, "y": 0, "z": -1 }
+  },
+  {
+    "id": "landingGear",
+    "wordpressLink": "https://example.com/wp-content/landing-gear-info",
+    "position": { "x": -0.5, "y": -1, "z": 2.3 },
+    "direction": { "x": 0, "y": -1, "z": 0 }
+  }
+]

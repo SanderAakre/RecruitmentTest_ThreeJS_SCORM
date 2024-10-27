@@ -14,12 +14,13 @@ export function showModal(url) {
   const modalContent = document.createElement("div");
   modalContent.classList.add(
     "bg-white",
-    "p-6",
     "rounded",
     "shadow-lg",
-    "max-w-lg",
+    "overflow-hidden",
     "relative",
-    "text-center"
+    "w-full",
+    "max-w-2xl",
+    "h-3/4" // Adjust height as needed
   );
 
   // Close modal if clicking outside content
@@ -29,52 +30,33 @@ export function showModal(url) {
     }
   });
 
-  document.body.appendChild(modal);
+  // Create the iframe to display the WordPress content
+  const iframe = document.createElement("iframe");
+  iframe.src = url;
+  iframe.classList.add("w-full", "h-full");
+  iframe.style.border = "none"; // Remove default iframe border for a cleaner look
 
-  // Fetch the WordPress page content
-  fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to load content: ${response.status}`);
-      }
-      return response.text();
-    })
-    .then((html) => {
-      // Create a temporary DOM element to parse the HTML
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
+  // Append the iframe to the modal content
+  modalContent.appendChild(iframe);
 
-      // Extract and set the content in the modal (e.g., main content div)
-      const wordpressContent = tempDiv.querySelector(".entry-content"); // Adjust as per WordPress theme structure
-      if (wordpressContent) {
-        modalContent.innerHTML = wordpressContent.innerHTML;
-      } else {
-        modalContent.innerHTML =
-          "<p>Content could not be loaded. Please try again later.</p>";
-      }
+  // Add a close button to the modal
+  const closeButton = document.createElement("button");
+  closeButton.innerHTML = "&times;";
+  closeButton.classList.add(
+    "absolute",
+    "top-2",
+    "right-2",
+    "text-2xl",
+    "font-bold",
+    "text-gray-700",
+    "hover:text-black"
+  );
+  closeButton.addEventListener("click", () => {
+    modal.remove();
+  });
+  modalContent.appendChild(closeButton);
 
-      // Add a close button
-      const closeButton = document.createElement("button");
-      closeButton.id = "modal-close";
-      closeButton.innerHTML = "&times;";
-      closeButton.classList.add(
-        "absolute",
-        "top-2",
-        "right-2",
-        "text-2xl",
-        "font-bold",
-        "text-gray-700",
-        "hover:text-black"
-      );
-      closeButton.addEventListener("click", () => {
-        modal.remove();
-      });
-      modalContent.appendChild(closeButton);
-    })
-    .catch((error) => {
-      console.error("Error loading modal content:", error);
-      modalContent.innerHTML = `<p class="text-red-500">Failed to fetch content. Please try again later.</p>`;
-    });
-
+  // Append modal content to modal, then to the body
   modal.appendChild(modalContent);
+  document.body.appendChild(modal);
 }

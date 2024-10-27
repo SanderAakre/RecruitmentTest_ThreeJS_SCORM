@@ -1,4 +1,5 @@
 // geometryHandler.js
+// This handles the loading of 3D models and the placement of icons
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
@@ -6,8 +7,9 @@ import { showModal } from "./infoModal.js";
 
 const iconWidth = 40;
 
+// Loads the model and its associated JSON data for icons
 export function loadModel(scene, modelName) {
-  // Return a promise to handle the asynchronous loading
+  // Promise to handle the asynchronous loading
   return new Promise((resolve, reject) => {
     const loader = new GLTFLoader();
     const textureLoader = new TextureLoader();
@@ -29,13 +31,13 @@ export function loadModel(scene, modelName) {
       "models/" + modelName + "/" + modelName + ".glb",
       (gltf) => {
         const model = gltf.scene;
-        model.rotation.y = Math.PI;
+        // model.rotation.y = Math.PI;
         model.traverse(function (node) {
           if (node.isMesh) {
             node.material = new THREE.MeshPhysicalMaterial({
               map: baseColorMap,
               normalMap: normalMap,
-              // aoMap: ormMap, // Not used because it looks bad. Update textures to fix
+              // aoMap: ormMap, // Not used because it currently looks bad. Improve the texture for better results
               // aoMapIntensity: 1,
               roughnessMap: ormMap,
               roughness: 1,
@@ -67,6 +69,7 @@ export function loadModel(scene, modelName) {
               const iconObject = createIconObject(icon);
               model.add(iconObject);
             });
+            // Return/resolve the model with icons
             resolve(model);
           })
           .catch((error) => {
@@ -83,38 +86,52 @@ export function loadModel(scene, modelName) {
   });
 }
 
+const debugHelpers = false; // Set to true to show debug helpers
+
+// Returns an icon object with the position and direction specified in the JSON data
 function createIconObject(icon) {
-  const iconObject = new THREE.Object3D(); // Acts as a placeholder for the icon
+  const iconObject = new THREE.Object3D();
   iconObject.name = icon.id;
   iconObject.position.set(icon.position.x, icon.position.y, icon.position.z);
 
-  // Create the icon element and its style
+  // Add debug helpers (arrow and name label) if debugHelpers is true
+  if (debugHelpers) {
+    const direction = new THREE.Vector3(
+      icon.direction.x,
+      icon.direction.y,
+      icon.direction.z
+    );
+    createDebugHelper(iconObject, direction, icon.id);
+  }
+
+  // Default styling for the HTML icon element
   const iconElement = document.createElement("div");
   iconElement.classList.add(
     "absolute",
     "bg-cover",
     "cursor-pointer",
-    "rounded-full"
+    "rounded-full",
+    "opacity-0",
+    "transition-opacity",
+    "duration-200"
   );
   iconElement.style.width = `${iconWidth}px`;
   iconElement.style.height = `${iconWidth}px`;
   iconElement.style.backgroundImage = 'url("/icon.png")';
 
-  // Set data-id for consistency with icon id
   iconElement.dataset.id = icon.id;
   iconElement.dataset.wordpressLink = icon.wordpressLink;
 
-  // Add event listener to display modal when the icon is clicked
   iconElement.addEventListener("click", (event) => {
     const wordpressLink = event.target.dataset.wordpressLink;
     if (wordpressLink) {
-      showModal(wordpressLink); // Open modal with the WordPress link
+      showModal(wordpressLink);
     }
   });
 
   document.body.appendChild(iconElement);
 
-  // Attach the icon element to the THREE.Object3D's userData for later reference
+  // Attach the HTML element and other data to the icon's userData
   iconObject.userData.iconElement = iconElement;
   iconObject.userData.wordpressLink = icon.wordpressLink;
   iconObject.userData.direction = new THREE.Vector3(
@@ -124,4 +141,38 @@ function createIconObject(icon) {
   );
 
   return iconObject;
+}
+
+// Ads debug helpers to the icon object (arrow and name label)
+function createDebugHelper(iconObject, direction, name) {
+  // Create an arrow helper to show the direction
+  const arrowHelper = new THREE.ArrowHelper(
+    direction.clone().normalize(),
+    new THREE.Vector3(0, 0, 0),
+    0.5,
+    0xff0000
+  );
+  iconObject.add(arrowHelper);
+
+  // Create a text sprite for the name label
+  const nameSprite = createTextSprite(name);
+  nameSprite.position.set(0, 0.4, 0); // Position label slightly above the icon
+  iconObject.add(nameSprite);
+}
+
+// Returnes a text sprite with the specified text
+function createTextSprite(text) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  context.font = "Bold 36px Arial";
+  context.fillStyle = "white";
+  context.fillText(text, 0, 24); // Draw text at top-left corner
+
+  // Create texture from canvas and set up the sprite
+  const texture = new THREE.CanvasTexture(canvas);
+  const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+  const sprite = new THREE.Sprite(spriteMaterial);
+  sprite.scale.set(1, 0.5, 1); // Scale sprite for better visibility
+
+  return sprite;
 }

@@ -33,7 +33,7 @@ export function createEnvironment(scene, renderer) {
   // HDRI as background and environment map
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   const hdriLoader = new RGBELoader();
-  hdriLoader.load("/textures/hdr/Skybox1D_Tex.HDR", function (texture) {
+  hdriLoader.load("./textures/Skybox1D_Tex.HDR", function (texture) {
     const envMap = pmremGenerator.fromEquirectangular(texture).texture;
     texture.dispose();
     scene.background = envMap;

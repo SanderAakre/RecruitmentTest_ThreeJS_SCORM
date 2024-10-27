@@ -5,6 +5,32 @@ import { loadModel } from "./components/geometryHandler.js";
 import { createEnvironment } from "./components/environmentHandler.js";
 import { updateIcons } from "./components/iconUpdateHandler.js";
 
+// Initialize SCORM
+if (pipwerks.SCORM.init()) {
+  console.log("SCORM initialized successfully.");
+} else {
+  console.error("SCORM initialization failed.");
+}
+
+// Example: Set the course status to "incomplete" when starting
+pipwerks.SCORM.set("cmi.core.lesson_status", "incomplete");
+
+function completeCourse() {
+  pipwerks.SCORM.set("cmi.core.lesson_status", "completed");
+  pipwerks.SCORM.save(); // Save progress to the LMS
+}
+
+function trackIconView(iconName) {
+  let data = pipwerks.SCORM.get("cmi.suspend_data") || "";
+  data += `${iconName}; `;
+  pipwerks.SCORM.set("cmi.suspend_data", data);
+  pipwerks.SCORM.save();
+}
+
+window.addEventListener("beforeunload", () => {
+  pipwerks.SCORM.quit();
+});
+
 // Set up the scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(

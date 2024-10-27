@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { showModal } from "./infoModal.js";
+import iconPath from "../public/textures/icon.png";
 
 const iconWidth = 40;
 
@@ -117,7 +118,7 @@ function createIconObject(icon) {
   );
   iconElement.style.width = `${iconWidth}px`;
   iconElement.style.height = `${iconWidth}px`;
-  iconElement.style.backgroundImage = 'url("/icon.png")';
+  iconElement.style.backgroundImage = `url(${iconPath})`;
 
   iconElement.dataset.id = icon.id;
   iconElement.dataset.wordpressLink = icon.wordpressLink;

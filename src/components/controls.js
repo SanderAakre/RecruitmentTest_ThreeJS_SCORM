@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export class CustomControls {
   constructor(camera, renderer, scene, minZoom = 5, maxZoom = 10) {
@@ -19,10 +19,10 @@ export class CustomControls {
     this.cameraDistance = camera.position.length(); // Set initial distance of camera from the scene center
 
     // Add event listeners for mouse events
-    this.renderer.domElement.addEventListener('mousedown', this.onMouseDown.bind(this));
-    this.renderer.domElement.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.renderer.domElement.addEventListener('mouseup', this.onMouseUp.bind(this));
-    this.renderer.domElement.addEventListener('wheel', this.onMouseWheel.bind(this));
+    this.renderer.domElement.addEventListener("mousedown", this.onMouseDown.bind(this));
+    this.renderer.domElement.addEventListener("mousemove", this.onMouseMove.bind(this));
+    this.renderer.domElement.addEventListener("mouseup", this.onMouseUp.bind(this));
+    this.renderer.domElement.addEventListener("wheel", this.onMouseWheel.bind(this));
   }
 
   // Mouse down event

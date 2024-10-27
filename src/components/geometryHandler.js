@@ -1,12 +1,12 @@
 // geometryHandler.js
-// This handles the loading of 3D models and the placement of icons
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { showModal } from "./infoModal.js";
+import { completePart } from "./courseTracker.js";
 import iconPath from "../public/textures/icon.png";
 
-const iconWidth = 40;
+export const iconWidth = 40;
 
 // Loads the model and its associated JSON data for icons
 export function loadModel(scene, modelName) {
@@ -15,17 +15,11 @@ export function loadModel(scene, modelName) {
     const loader = new GLTFLoader();
     const textureLoader = new TextureLoader();
 
-    const baseColorMap = textureLoader.load(
-      "models/" + modelName + "/" + modelName + "_BaseColor.png"
-    );
+    const baseColorMap = textureLoader.load("models/" + modelName + "/" + modelName + "_BaseColor.png");
     baseColorMap.flipY = false;
-    const normalMap = textureLoader.load(
-      "models/" + modelName + "/" + modelName + "_Normal.png"
-    );
+    const normalMap = textureLoader.load("models/" + modelName + "/" + modelName + "_Normal.png");
     normalMap.flipY = false;
-    const ormMap = textureLoader.load(
-      "models/" + modelName + "/" + modelName + "_ORM.png"
-    );
+    const ormMap = textureLoader.load("models/" + modelName + "/" + modelName + "_ORM.png");
     ormMap.flipY = false;
 
     loader.load(
@@ -97,36 +91,31 @@ function createIconObject(icon) {
 
   // Add debug helpers (arrow and name label) if debugHelpers is true
   if (debugHelpers) {
-    const direction = new THREE.Vector3(
-      icon.direction.x,
-      icon.direction.y,
-      icon.direction.z
-    );
+    const direction = new THREE.Vector3(icon.direction.x, icon.direction.y, icon.direction.z);
     createDebugHelper(iconObject, direction, icon.id);
   }
 
   // Default styling for the HTML icon element
   const iconElement = document.createElement("div");
-  iconElement.classList.add(
-    "absolute",
-    "bg-cover",
-    "cursor-pointer",
-    "rounded-full",
-    "opacity-0",
-    "transition-opacity",
-    "duration-200"
-  );
+  iconElement.classList.add("absolute", "bg-cover", "cursor-pointer", "rounded-full", "opacity-0", "transition-opacity", "duration-200");
   iconElement.style.width = `${iconWidth}px`;
   iconElement.style.height = `${iconWidth}px`;
   iconElement.style.backgroundImage = `url(${iconPath})`;
 
   iconElement.dataset.id = icon.id;
   iconElement.dataset.wordpressLink = icon.wordpressLink;
+  iconElement.dataset.scormId = icon.scormId;
 
   iconElement.addEventListener("click", (event) => {
     const wordpressLink = event.target.dataset.wordpressLink;
     if (wordpressLink) {
       showModal(wordpressLink);
+    }
+    console.log("Clicked on icon:", event.target.dataset.scormId);
+    const scormId = event.target.dataset.scormId;
+    if (scormId) {
+      console.log("Completing part:", scormId);
+      completePart(scormId);
     }
   });
 
@@ -135,11 +124,7 @@ function createIconObject(icon) {
   // Attach the HTML element and other data to the icon's userData
   iconObject.userData.iconElement = iconElement;
   iconObject.userData.wordpressLink = icon.wordpressLink;
-  iconObject.userData.direction = new THREE.Vector3(
-    icon.direction.x,
-    icon.direction.y,
-    icon.direction.z
-  );
+  iconObject.userData.direction = new THREE.Vector3(icon.direction.x, icon.direction.y, icon.direction.z);
 
   return iconObject;
 }
@@ -147,12 +132,7 @@ function createIconObject(icon) {
 // Ads debug helpers to the icon object (arrow and name label)
 function createDebugHelper(iconObject, direction, name) {
   // Create an arrow helper to show the direction
-  const arrowHelper = new THREE.ArrowHelper(
-    direction.clone().normalize(),
-    new THREE.Vector3(0, 0, 0),
-    0.5,
-    0xff0000
-  );
+  const arrowHelper = new THREE.ArrowHelper(direction.clone().normalize(), new THREE.Vector3(0, 0, 0), 0.5, 0xff0000);
   iconObject.add(arrowHelper);
 
   // Create a text sprite for the name label

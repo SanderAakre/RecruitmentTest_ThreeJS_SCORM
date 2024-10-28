@@ -1,3 +1,5 @@
+import { iconWidth } from "./geometryHandler.js";
+
 // courseTracker.js
 
 let completionStatus = {
@@ -10,6 +12,41 @@ let completionStatus = {
   part7: false,
   part8: false,
 };
+
+// Initialize the viewed parts counter and the total parts
+let viewedParts = 0;
+const totalParts = 8;
+
+// Function to create and style the progress display
+function createProgressDisplay() {
+  const progressDisplay = document.createElement("div");
+
+  // Tailwind classes for styling the element
+  progressDisplay.classList.add(
+    "fixed",
+    "top-4",
+    "right-4",
+    "bg-gray-700",
+    "text-white",
+    "text-sm",
+    "font-bold",
+    "py-1",
+    "px-3",
+    "rounded-full",
+    "shadow-lg",
+    "transition-all",
+    "duration-300",
+    "z-50"
+  );
+
+  // Set the initial text content
+  progressDisplay.innerText = `${viewedParts}/${totalParts} parts viewed`;
+
+  // Attach it to the body
+  document.body.appendChild(progressDisplay);
+
+  return progressDisplay;
+}
 
 // Initialize SCORM, load progress if it exists, and set the course status
 export function initCourse() {
@@ -25,34 +62,56 @@ export function initCourse() {
   });
 }
 
+// Loads the course progress from the SCORM API if it exists
 function loadProgress() {
   const progressData = pipwerks.SCORM.get("cmi.suspend_data");
   if (progressData) {
     try {
       completionStatus = JSON.parse(progressData);
       console.log("Progress loaded:", completionStatus);
+
+      // Apply completed styling for parts that are already completed
+      Object.keys(completionStatus).forEach((partName) => {
+        if (completionStatus[partName]) {
+          viewedParts++;
+          applyCompletedStyling(partName);
+        }
+      });
     } catch (error) {
       console.error("Error parsing suspend_data:", error);
     }
   }
 }
 
+// Updates completion status, display and icon styling for the part it is called with
 export function completePart(partName) {
   if (completionStatus[partName]) return; // Return if part already completed
   completionStatus[partName] = true;
   saveProgress(); // Save to SCORM
-  logProgress(); // Log progress to console for debugging
 
-  // Get the icon element and update styles for completion
-  const iconElement = document.querySelector(`[data-id="${partName}"]`);
-  if (iconElement) {
-    iconElement.classList.add("opacity-50", "scale-75"); // Tailwind classes to gray out and shrink
-  }
+  applyCompletedStyling(partName);
 
-  // Check if all parts are completed
+  // Increment viewed parts and update the display
+  viewedParts++;
+  progressDisplay.innerText = `${viewedParts}/${totalParts} parts viewed`;
+
+  // Check if all parts are completed and mark course as completed
   if (Object.values(completionStatus).every((status) => status)) {
-    completeCourse(); // Mark the course as fully completed if all parts are done
+    completeCourse();
   }
+}
+
+function applyCompletedStyling(partName) {
+  const iconElements = document.querySelectorAll(`[data-scorm-id="${partName}"]`);
+  iconElements.forEach((iconElement) => {
+    iconElement.style.width = iconWidth * 0.8 + "px"; // Shrink icon width
+    iconElement.style.height = iconWidth * 0.8 + "px"; // Shrink icon height
+    const overlay = iconElement.querySelector("div"); // Select overlay
+    if (overlay) {
+      overlay.classList.remove("hidden"); // Show overlay for grayed-out effect
+      overlay.style.pointerEvents = "none"; // Make overlay click-through
+    }
+  });
 }
 
 function saveProgress() {
@@ -61,13 +120,13 @@ function saveProgress() {
   pipwerks.SCORM.save();
 }
 
-// Call updateProgressDisplay when a part is completed
-function logProgress() {
-  const completedParts = Object.values(completionStatus).filter(Boolean).length;
-  console.log(`${completedParts}/8 parts completed`);
-}
-
 function completeCourse() {
+  progressDisplay.innerText = "Course completed!";
+  progressDisplay.classList.remove("bg-gray-700");
+  progressDisplay.classList.add("bg-green-500");
   pipwerks.SCORM.set("cmi.core.lesson_status", "completed");
   pipwerks.SCORM.save();
 }
+
+// Create and add the progress display element
+const progressDisplay = createProgressDisplay();

@@ -3,6 +3,13 @@ import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
 export function createEnvironment(scene, renderer) {
+  // Set up renderer
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; // Tone mapping for more stylish rendering
+  renderer.toneMappingExposure = 0.8;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
   // Sunlight (Directional Light) with Shadows
   const directionalLight = new THREE.DirectionalLight(0xfff2e6, 7);
   directionalLight.position.set(2.2, 6, 3);

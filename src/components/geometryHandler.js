@@ -6,7 +6,7 @@ import { showModal } from "./infoModal.js";
 import { completePart } from "./courseTracker.js";
 import iconPath from "../public/textures/icon.png";
 
-export const iconWidth = 40;
+export const iconWidth = 32;
 
 // Loads the model and its associated JSON data for icons
 export function loadModel(scene, modelName) {
@@ -102,6 +102,11 @@ function createIconObject(icon) {
   iconElement.style.height = `${iconWidth}px`;
   iconElement.style.backgroundImage = `url(${iconPath})`;
 
+  // Create overlay for grayed-out effect after completion
+  const overlay = document.createElement("div");
+  overlay.classList.add("absolute", "inset-0", "bg-gray-500", "bg-opacity-50", "rounded-full", "hidden");
+  iconElement.appendChild(overlay);
+
   iconElement.dataset.id = icon.id;
   iconElement.dataset.wordpressLink = icon.wordpressLink;
   iconElement.dataset.scormId = icon.scormId;
@@ -111,10 +116,8 @@ function createIconObject(icon) {
     if (wordpressLink) {
       showModal(wordpressLink);
     }
-    console.log("Clicked on icon:", event.target.dataset.scormId);
     const scormId = event.target.dataset.scormId;
     if (scormId) {
-      console.log("Completing part:", scormId);
       completePart(scormId);
     }
   });

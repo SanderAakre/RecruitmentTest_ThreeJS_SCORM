@@ -15,7 +15,7 @@ export function updateIcons(model, camera) {
     model.traverse((node) => {
       if (node.isObject3D && node.userData.wordpressLink) {
         // Check if it's an icon
-        updateIconVisibility(node, camera);
+        updateIconVisibility(node, camera, model);
       }
     });
 
@@ -26,10 +26,12 @@ export function updateIcons(model, camera) {
 }
 
 // Updates the visibility of an icon based on its orientation to the camera, also handles fading
-function updateIconVisibility(icon, camera) {
+function updateIconVisibility(icon, camera, model) {
   const iconPosition = icon.getWorldPosition(new THREE.Vector3());
   const cameraDirection = new THREE.Vector3().subVectors(camera.position, iconPosition).normalize();
-  const iconDirection = icon.userData.direction;
+
+  // Transform the icon's original direction by the model's rotation
+  const iconDirection = icon.userData.direction.clone().applyQuaternion(model.quaternion);
   const iconElement = icon.userData.iconElement;
 
   if (iconElement) {

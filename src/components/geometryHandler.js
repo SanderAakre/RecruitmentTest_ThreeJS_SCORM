@@ -15,6 +15,7 @@ export function loadModel(scene, modelName) {
     const loader = new GLTFLoader();
     const textureLoader = new TextureLoader();
 
+    // Load the textures for the model
     const baseColorMap = textureLoader.load("models/" + modelName + "/" + modelName + "_BaseColor.png");
     baseColorMap.flipY = false;
     const normalMap = textureLoader.load("models/" + modelName + "/" + modelName + "_Normal.png");

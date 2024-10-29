@@ -49,7 +49,7 @@ function updateIconVisibility(icon, camera, model) {
       iconElement.classList.remove("opacity-0");
       iconElement.classList.add("opacity-100");
 
-      // Reset fading state
+      iconElement.style.pointerEvents = "auto";
       icon.isFadingOut = false;
     } else {
       // Icon is not facing the camera - begin fade-out if not already fading
@@ -61,6 +61,7 @@ function updateIconVisibility(icon, camera, model) {
           if (parseFloat(window.getComputedStyle(iconElement).opacity) <= 0) {
             clearInterval(fadeOutInterval); // Stop updating position when fully faded out
             icon.isFadingOut = false; // Reset fading state
+            iconElement.style.pointerEvents = "none";
           } else {
             // Continue updating position until fully faded out
             const screenPosition = iconPosition.clone().project(camera);

@@ -4,30 +4,32 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { showModal } from "./infoModal.js";
 import { completePart } from "./courseTracker.js";
-import iconPath from "../public/textures/icon.png";
+// iconPath url is imported so it will be included in the build
+import iconPath from "../public/textures/icon.png?url";
 
 export const iconWidth = 32;
 
 // Loads the model and its associated JSON data for icons
 export function loadModel(scene, modelName) {
-  // Promise to handle the asynchronous loading
   return new Promise((resolve, reject) => {
     const loader = new GLTFLoader();
     const textureLoader = new TextureLoader();
 
     // Load the textures for the model
-    const baseColorMap = textureLoader.load("models/" + modelName + "/" + modelName + "_BaseColor.png");
+    const baseColorMap = textureLoader.load(`models/${modelName}/${modelName}_BaseColor.png`);
     baseColorMap.flipY = false;
-    const normalMap = textureLoader.load("models/" + modelName + "/" + modelName + "_Normal.png");
+    baseColorMap.encoding = THREE.sRGBEncoding;
+    const normalMap = textureLoader.load(`models/${modelName}/${modelName}_Normal.png`);
     normalMap.flipY = false;
-    const ormMap = textureLoader.load("models/" + modelName + "/" + modelName + "_ORM.png");
+    const ormMap = textureLoader.load(`models/${modelName}/${modelName}_ORM.png`);
     ormMap.flipY = false;
 
     loader.load(
-      "models/" + modelName + "/" + modelName + ".glb",
+      `models/${modelName}/${modelName}.glb`,
       (gltf) => {
         const model = gltf.scene;
-        // model.rotation.y = Math.PI;
+        const animations = gltf.animations; // Store animations separately
+
         model.traverse(function (node) {
           if (node.isMesh) {
             node.material = new THREE.MeshPhysicalMaterial({
@@ -36,12 +38,9 @@ export function loadModel(scene, modelName) {
               // aoMap: ormMap, // Not used because it currently looks bad. Improve the texture for better results
               // aoMapIntensity: 1,
               roughnessMap: ormMap,
-              roughness: 1,
+              roughness: 1.2,
               metalnessMap: ormMap,
               metalness: 1,
-              reflectivity: 0.5,
-              clearcoat: 0.2,
-              clearcoatRoughness: 0.3,
             });
             // Enable shadows
             node.castShadow = true;
@@ -51,12 +50,10 @@ export function loadModel(scene, modelName) {
           }
         });
 
-        // Attempt to fetch the JSON file of the current model
+        // Fetch the JSON file of the model (optional step for your icons)
         fetch(`models/${modelName}/${modelName}_info.json`)
           .then((response) => {
-            if (!response.ok) {
-              throw new Error(`Failed to load JSON: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Failed to load JSON: ${response.status}`);
             return response.json();
           })
           // Create icon objects from the JSON data and add them as children of the model
@@ -65,8 +62,8 @@ export function loadModel(scene, modelName) {
               const iconObject = createIconObject(icon);
               model.add(iconObject);
             });
-            // Return/resolve the model with icons
-            resolve(model);
+            // Resolve with both model and animations as an object
+            resolve({ loadedModel: model, animations });
           })
           .catch((error) => {
             console.error("Error loading JSON:", error);

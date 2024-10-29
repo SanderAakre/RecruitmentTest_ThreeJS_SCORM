@@ -51,7 +51,7 @@
   {
     "scormId": "part5",
     "id": "cockpit",
-    "wordpressLink": "https://example.com/wp-content/cockpit-info",
+    "wordpressLink": "https://vehiclepartinfo.wordpress.com/panoramic-vision-cockpit/",
     "position": { "x": 0, "y": 2.5, "z": -7 },
     "direction": { "x": 0, "y": 0, "z": -1 }
   },
@@ -72,7 +72,7 @@
   {
     "scormId": "part8",
     "id": "cargoDoors",
-    "wordpressLink": "https://example.com/wp-content/cargo-doors-info",
+    "wordpressLink": "https://vehiclepartinfo.wordpress.com/multi-role-dropbay-access/",
     "position": { "x": 0, "y": 1, "z": 3.2 },
     "direction": { "x": 0, "y": -1, "z": 0.1 }
   }

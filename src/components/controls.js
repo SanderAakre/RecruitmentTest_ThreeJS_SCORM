@@ -1,3 +1,4 @@
+// Changes the default orbit controls and adds custom controls for rotating the model
 export function configureControls(controls, model) {
   // Set minimum and maximum zoom distances for camera
   controls.minDistance = 14;

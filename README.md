@@ -42,6 +42,5 @@ To create a SCORM-compatible zip package:
 ## Known Issues and bugs
 
 - **Icon freeze bug**: Icons may freeze in place if the model is rotated for a while. Rotating the camera fixes this.
-- **UV Mapping issue with Three.JS**: Some parts of the model have incorrect UV mapping, causing textures to appear stretched. The model looks fine in Unreal Engine, so this is likely an issue with how Three.js triangulates the model.
 - **Material looks washed out**: The model's textures were created for Unreal Engine, and have not been optimized for Three.js.
 - **WordPress banner**: The information popup has a banner from WordPress because I didn't want to subscribe to a paid plan to remove it.

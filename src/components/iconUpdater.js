@@ -1,4 +1,3 @@
-// iconUpdater.js
 import * as THREE from "three";
 import { iconWidth } from "./geometryHandler.js";
 
@@ -6,6 +5,7 @@ import { iconWidth } from "./geometryHandler.js";
 const previousCameraPosition = new THREE.Vector3();
 const previousModelPosition = new THREE.Vector3();
 
+// Updates the visibility of all icons in the model based on their orientation to the camera
 export function updateIcons(model, camera) {
   const cameraMoved = !camera.position.equals(previousCameraPosition);
   const modelMoved = !model.position.equals(previousModelPosition);
@@ -14,7 +14,6 @@ export function updateIcons(model, camera) {
   if (cameraMoved || modelMoved) {
     model.traverse((node) => {
       if (node.isObject3D && node.userData.wordpressLink) {
-        // Check if it's an icon
         updateIconVisibility(node, camera, model);
       }
     });
@@ -25,8 +24,9 @@ export function updateIcons(model, camera) {
   }
 }
 
-// Updates the visibility of an icon based on its orientation to the camera, also handles fading
+// Updates the position and visibility of an icon based on its orientation to the camera
 function updateIconVisibility(icon, camera, model) {
+  // Get the world position of the icon and the direction it's facing
   const iconPosition = icon.getWorldPosition(new THREE.Vector3());
   const cameraDirection = new THREE.Vector3().subVectors(camera.position, iconPosition).normalize();
 
@@ -35,32 +35,35 @@ function updateIconVisibility(icon, camera, model) {
   const iconElement = icon.userData.iconElement;
 
   if (iconElement) {
+    // Check if the icon direction is facing the camera
     const dot = iconDirection.dot(cameraDirection);
-
     if (dot > 0) {
-      // Icon is facing the camera - position it and fade in
+      // Convert the 3D position of the icon object to 2D screen coordinates
       const screenPosition = iconPosition.clone().project(camera);
       const x = (screenPosition.x * 0.5 + 0.5) * window.innerWidth;
       const y = -(screenPosition.y * 0.5 - 0.5) * window.innerHeight;
 
+      // Position the icon at the 2D screen coordinates, offset by half its width to center it
       iconElement.style.left = `${x - iconWidth / 2}px`;
       iconElement.style.top = `${y - iconWidth / 2}px`;
 
+      // Make the icon visible and clickable
       iconElement.classList.remove("opacity-0");
       iconElement.classList.add("opacity-100");
-
       iconElement.style.pointerEvents = "auto";
+
       icon.isFadingOut = false;
     } else {
       // Icon is not facing the camera - begin fade-out if not already fading
       if (!icon.isFadingOut) {
-        icon.isFadingOut = true; // Set fade-out state
+        icon.isFadingOut = true; 
 
-        // Keep updating position during fade-out
+        // Keep updating position during fade-out so it moves with the model
         const fadeOutInterval = setInterval(() => {
+          // Stop fading out if the icon is fully transparent
           if (parseFloat(window.getComputedStyle(iconElement).opacity) <= 0) {
             clearInterval(fadeOutInterval); // Stop updating position when fully faded out
-            icon.isFadingOut = false; // Reset fading state
+            icon.isFadingOut = false;
             iconElement.style.pointerEvents = "none";
           } else {
             // Continue updating position until fully faded out

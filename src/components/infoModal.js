@@ -16,7 +16,7 @@ export function showModal(url) {
   const iframe = document.createElement("iframe");
   iframe.src = url;
   iframe.classList.add("w-full", "h-full", "flex-grow");
-  iframe.style.border = "none"; // Remove default iframe border for a cleaner look
+  iframe.style.border = "none";
 
   // Append the iframe to the modal content
   modalContent.appendChild(iframe);

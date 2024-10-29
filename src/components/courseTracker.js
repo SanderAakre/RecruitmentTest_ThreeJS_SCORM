@@ -1,7 +1,6 @@
 import { iconWidth } from "./geometryHandler.js";
 
-// courseTracker.js
-
+// Object to store the completion status of the course parts
 let completionStatus = {
   part1: false,
   part2: false,
@@ -17,11 +16,11 @@ let completionStatus = {
 let viewedParts = 0;
 const totalParts = 8;
 
-// Function to create and style the progress display
+// Returns the progress display
 function createProgressDisplay() {
   const progressDisplay = document.createElement("div");
 
-  // Tailwind classes for styling the element
+  // Tailwind classes for styling
   progressDisplay.classList.add(
     "fixed",
     "top-4",
@@ -101,6 +100,7 @@ export function completePart(partName) {
   }
 }
 
+// Applies completed styling to all icons with the specified part name
 function applyCompletedStyling(partName) {
   const iconElements = document.querySelectorAll(`[data-scorm-id="${partName}"]`);
   iconElements.forEach((iconElement) => {
@@ -114,12 +114,14 @@ function applyCompletedStyling(partName) {
   });
 }
 
+// Saves the completion status to the SCORM API
 function saveProgress() {
   const progressData = JSON.stringify(completionStatus);
   pipwerks.SCORM.set("cmi.suspend_data", progressData);
   pipwerks.SCORM.save();
 }
 
+// Marks the course as completed in the SCORM API and updates the display
 function completeCourse() {
   progressDisplay.innerText = "Course completed!";
   progressDisplay.classList.remove("bg-gray-700");

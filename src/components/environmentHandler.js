@@ -1,9 +1,8 @@
-// environmentHandler.js
 import * as THREE from "three";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
 
+// Creates the environment for the scene and sets up the renderer
 export function createEnvironment(scene, renderer) {
-  // Set up renderer
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; // Tone mapping for more stylish rendering
@@ -13,13 +12,11 @@ export function createEnvironment(scene, renderer) {
   // Sunlight (Directional Light) with Shadows
   const directionalLight = new THREE.DirectionalLight(0xfff2e6, 7);
   directionalLight.position.set(2.2, 6, 3);
-  directionalLight.castShadow = true; // Enable shadow casting
+  directionalLight.castShadow = true; // Enable shadow casting 
 
-  // Shadow map resolution
-  directionalLight.shadow.mapSize.width = 4096;
-  directionalLight.shadow.mapSize.height = 4096;
-
-  // Shadow camera settings
+  // Shadow map settings resolution
+  directionalLight.shadow.mapSize.width = 2048;
+  directionalLight.shadow.mapSize.height = 2048;
   directionalLight.shadow.camera.near = 0;
   directionalLight.shadow.camera.far = 12;
   directionalLight.shadow.camera.left = -12;

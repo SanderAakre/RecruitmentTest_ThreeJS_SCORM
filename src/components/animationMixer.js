@@ -1,10 +1,10 @@
-// animationMixer.js
 import { AnimationMixer, LoopOnce } from "three";
 
 let mixer, landingGearAnimation;
 let isRetracting = true;
-let button; // Declare button at a broader scope
+let button;
 
+// Configures the animation mixer and sets up the landing gear animation with a toggle button
 export function configureMixer(model, animations) {
   if (!animations || animations.length === 0) {
     console.error("No animations found in the model.");
@@ -27,6 +27,7 @@ export function configureMixer(model, animations) {
   return mixer;
 }
 
+// Toggles the landing gear animation between retracting and extending when called
 function toggleLandingGear() {
   if (landingGearAnimation) {
     landingGearAnimation.timeScale = isRetracting ? 1 : -1; // Forward for retract, reverse for extend

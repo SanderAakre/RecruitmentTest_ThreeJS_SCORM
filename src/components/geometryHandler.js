@@ -1,10 +1,8 @@
-// geometryHandler.js
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TextureLoader } from "three/src/loaders/TextureLoader";
 import { showModal } from "./infoModal.js";
 import { completePart } from "./courseTracker.js";
-// iconPath url is imported so it will be included in the build
 import iconPath from "../public/textures/icon.png?url";
 
 export const iconWidth = 32;
@@ -15,7 +13,7 @@ export function loadModel(scene, modelName) {
     const loader = new GLTFLoader();
     const textureLoader = new TextureLoader();
 
-    // Load the textures for the model
+    // Load the texture maps for the model
     const baseColorMap = textureLoader.load(`models/${modelName}/${modelName}_BaseColor.png`);
     baseColorMap.flipY = false;
     baseColorMap.encoding = THREE.sRGBEncoding;
@@ -24,33 +22,36 @@ export function loadModel(scene, modelName) {
     const ormMap = textureLoader.load(`models/${modelName}/${modelName}_ORM.png`);
     ormMap.flipY = false;
 
+    // Create a physical material with the texture maps
+    const airplaneMaterial = new THREE.MeshPhysicalMaterial({
+      map: baseColorMap,
+      normalMap: normalMap,
+      // Ambient occlusion map isn't used in this model beacuse it looks bad with the current textures
+      // aoMap: ormMap,
+      roughnessMap: ormMap,
+      roughness: 1.2,
+      metalnessMap: ormMap,
+      metalness: 1,
+    });
+
+    // Load the model based on the modelName
     loader.load(
       `models/${modelName}/${modelName}.glb`,
       (gltf) => {
         const model = gltf.scene;
-        const animations = gltf.animations; // Store animations separately
+        const animations = gltf.animations;
 
+        // Apply material settings to all meshes in the model
         model.traverse(function (node) {
           if (node.isMesh) {
-            node.material = new THREE.MeshPhysicalMaterial({
-              map: baseColorMap,
-              normalMap: normalMap,
-              // aoMap: ormMap, // Not used because it currently looks bad. Improve the texture for better results
-              // aoMapIntensity: 1,
-              roughnessMap: ormMap,
-              roughness: 1.2,
-              metalnessMap: ormMap,
-              metalness: 1,
-            });
-            // Enable shadows
+            node.material = airplaneMaterial;
             node.castShadow = true;
             node.receiveShadow = true;
-            // Update the material
             node.material.needsUpdate = true;
           }
         });
 
-        // Fetch the JSON file of the model (optional step for your icons)
+        // Fetch the JSON file of the model (Where the icon data is stored)
         fetch(`models/${modelName}/${modelName}_info.json`)
           .then((response) => {
             if (!response.ok) throw new Error(`Failed to load JSON: ${response.status}`);
@@ -62,7 +63,7 @@ export function loadModel(scene, modelName) {
               const iconObject = createIconObject(icon);
               model.add(iconObject);
             });
-            // Resolve with both model and animations as an object
+            // Resolve the promise with the model and animations
             resolve({ loadedModel: model, animations });
           })
           .catch((error) => {
@@ -79,9 +80,9 @@ export function loadModel(scene, modelName) {
   });
 }
 
-const debugHelpers = false; // Set to true to show debug helpers
+const debugHelpers = false; // Debug option to help with positioning and orientation of icons
 
-// Returns an icon object with the position and direction specified in the JSON data
+// Returns an icon object with the position and direction specified in the JSON data as data attributes
 function createIconObject(icon) {
   const iconObject = new THREE.Object3D();
   iconObject.name = icon.id;
@@ -130,7 +131,7 @@ function createIconObject(icon) {
   return iconObject;
 }
 
-// Ads debug helpers to the icon object (arrow and name label)
+// Creates a debug arrow and name label for the icon object
 function createDebugHelper(iconObject, direction, name) {
   // Create an arrow helper to show the direction
   const arrowHelper = new THREE.ArrowHelper(direction.clone().normalize(), new THREE.Vector3(0, 0, 0), 0.5, 0xff0000);

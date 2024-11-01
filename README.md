@@ -23,13 +23,14 @@ The airplane model was created by me in Blender, and textured using Substance Pa
 To create a SCORM-compatible zip package:
 
 1. Build the project to generate the production-ready files: `npx vite build`.
-2. Copy the following files to a zip folder:
+2. In `dist/imsmanifest.xml`, update the `assets/index-.js` file to match the name of the generated JS file in the `dist/assets` folder.
+3. Copy the following files to a zip folder:
 
 - Content of the `dist` folder (from `vite build`).
 - `imsmanifest.xml` (required by SCORM).
 - `src/SCORM_API_wrapper.js` (SCORM API wrapper).
 
-3. Upload the zip file as a SCORM package to your LMS.
+4. Upload the zip file as a SCORM package to your LMS.
 
 ## Controls
 

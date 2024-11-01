@@ -1,26 +1,73 @@
 import { iconWidth } from "./geometryHandler.js";
 
-// Object to store the completion status of the course parts
+// Object to store the completion status of each part
 let completionStatus = {
-  part1: false,
-  part2: false,
-  part3: false,
-  part4: false,
-  part5: false,
-  part6: false,
-  part7: false,
-  part8: false,
+  1: false,
+  2: false,
+  3: false,
+  4: false,
+  5: false,
+  6: false,
+  7: false,
+  8: false,
 };
 
-// Initialize the viewed parts counter and the total parts
+// Initialize the counter for viewed parts
 let viewedParts = 0;
 const totalParts = 8;
+let progressDisplay;
 
-// Returns the progress display
+// Initialize SCORM and load progress
+export function initCourse() {
+  createProgressDisplay();
+
+  if (pipwerks.SCORM.init()) {
+    console.log("SCORM initialized successfully.");
+    loadProgress();
+  } else {
+    console.error("SCORM initialization failed.");
+  }
+
+  window.addEventListener("beforeunload", () => {
+    pipwerks.SCORM.quit();
+  });
+}
+
+// Load saved progress from SCORM and update `completionStatus`
+function loadProgress() {
+  const progressData = pipwerks.SCORM.get("cmi.suspend_data");
+
+  if (progressData) {
+    try {
+      completionStatus = JSON.parse(progressData);
+      console.log("Progress loaded:", completionStatus);
+
+      // Apply completed styling for each completed part
+      Object.keys(completionStatus).forEach((partId) => {
+        if (completionStatus[partId]) {
+          viewedParts++;
+          applyCompletedStyling(partId);
+          console.log(`Part ${partId} loaded as completed.`);
+        }
+      });
+    } catch (error) {
+      console.error("Error parsing suspend_data:", error);
+    }
+  }
+
+  if (viewedParts === totalParts) {
+    console.log("Course already completed.");
+    completeCourse();
+  } else {
+    console.log("Course not yet completed.");
+    pipwerks.SCORM.set("cmi.core.lesson_status", "incomplete");
+    progressDisplay.innerText = `${viewedParts}/${totalParts} parts viewed`;
+  }
+}
+
+// Creates the progress display element
 function createProgressDisplay() {
-  const progressDisplay = document.createElement("div");
-
-  // Tailwind classes for styling
+  progressDisplay = document.createElement("div");
   progressDisplay.classList.add(
     "fixed",
     "top-4",
@@ -38,97 +85,54 @@ function createProgressDisplay() {
     "z-50"
   );
 
-  // Set the initial text content
   progressDisplay.innerText = `${viewedParts}/${totalParts} parts viewed`;
-
-  // Attach it to the body
   document.body.appendChild(progressDisplay);
-
-  return progressDisplay;
 }
 
-// Initialize SCORM, load progress if it exists, and set the course status
-export function initCourse() {
-  if (pipwerks.SCORM.init()) {
-    console.log("SCORM initialized successfully.");
-    loadProgress();
-    pipwerks.SCORM.set("cmi.core.lesson_status", "incomplete");
-  } else {
-    console.error("SCORM initialization failed.");
-  }
-  window.addEventListener("beforeunload", () => {
-    pipwerks.SCORM.quit();
-  });
-}
+// Update `completionStatus` when a part is completed and save to SCORM
+export function completePart(partId) {
+  if (completionStatus[partId]) return; // Skip if already completed
 
-// Loads the course progress from the SCORM API if it exists
-function loadProgress() {
-  const progressData = pipwerks.SCORM.get("cmi.suspend_data");
-  if (progressData) {
-    try {
-      completionStatus = JSON.parse(progressData);
-      console.log("Progress loaded:", completionStatus);
+  completionStatus[partId] = true;
+  saveProgress(); // Save updated progress to SCORM
 
-      // Apply completed styling for parts that are already completed
-      Object.keys(completionStatus).forEach((partName) => {
-        if (completionStatus[partName]) {
-          viewedParts++;
-          applyCompletedStyling(partName);
-        }
-      });
-    } catch (error) {
-      console.error("Error parsing suspend_data:", error);
-    }
-  }
-}
+  applyCompletedStyling(partId); // Update icon styling
 
-// Updates completion status, display and icon styling for the part it is called with
-export function completePart(partName) {
-  if (completionStatus[partName]) return; // Return if part already completed
-  completionStatus[partName] = true;
-  saveProgress(); // Save to SCORM
-
-  applyCompletedStyling(partName);
-
-  // Increment viewed parts and update the display
   viewedParts++;
   progressDisplay.innerText = `${viewedParts}/${totalParts} parts viewed`;
 
-  // Check if all parts are completed and mark course as completed
-  if (Object.values(completionStatus).every((status) => status)) {
+  if (viewedParts === totalParts) {
     completeCourse();
   }
 }
 
-// Applies completed styling to all icons with the specified part name
-function applyCompletedStyling(partName) {
-  const iconElements = document.querySelectorAll(`[data-scorm-id="${partName}"]`);
+// Apply completed styling to specified icons based on partId
+function applyCompletedStyling(partId) {
+  const iconElements = document.querySelectorAll(`[data-scorm-id="${partId}"]`);
+
   iconElements.forEach((iconElement) => {
-    iconElement.style.width = iconWidth * 0.8 + "px"; // Shrink icon width
-    iconElement.style.height = iconWidth * 0.8 + "px"; // Shrink icon height
-    const overlay = iconElement.querySelector("div"); // Select overlay
+    iconElement.style.width = iconWidth * 0.8 + "px";
+    iconElement.style.height = iconWidth * 0.8 + "px";
+
+    const overlay = iconElement.querySelector("div");
     if (overlay) {
-      overlay.classList.remove("hidden"); // Show overlay for grayed-out effect
-      overlay.style.pointerEvents = "none"; // Make overlay click-through
+      overlay.classList.remove("hidden");
+      overlay.style.pointerEvents = "none";
     }
   });
 }
 
-// Saves the completion status to the SCORM API
+// Save `completionStatus` to SCORM API
 function saveProgress() {
   const progressData = JSON.stringify(completionStatus);
   pipwerks.SCORM.set("cmi.suspend_data", progressData);
   pipwerks.SCORM.save();
 }
 
-// Marks the course as completed in the SCORM API and updates the display
+// Mark course as completed in SCORM and update progress display
 function completeCourse() {
   progressDisplay.innerText = "Course completed!";
-  progressDisplay.classList.remove("bg-gray-700");
-  progressDisplay.classList.add("bg-green-500");
+  progressDisplay.classList.replace("bg-gray-700", "bg-green-500");
   pipwerks.SCORM.set("cmi.core.lesson_status", "completed");
   pipwerks.SCORM.save();
 }
-
-// Create and add the progress display element
-const progressDisplay = createProgressDisplay();

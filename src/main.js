@@ -60,10 +60,9 @@ loadModel(scene, modelName).then(({ loadedModel, animations }) => {
   // Add controls for the camera and model
   configureControls(controls, model);
   mixer = configureMixer(model, animations); // Pass animations to configureMixer
+  // Initialize the SCORM course
+  initCourse();
 });
-
-// Initialize the SCORM course
-initCourse();
 
 // Start the animation loop
 animate();

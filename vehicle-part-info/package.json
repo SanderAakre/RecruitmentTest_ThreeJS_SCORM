@@ -12,7 +12,8 @@
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "three-stdlib": "^2.34.0"
   },
   "devDependencies": {
     "@types/node": "^20",

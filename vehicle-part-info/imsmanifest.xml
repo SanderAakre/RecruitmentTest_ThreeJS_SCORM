@@ -1,0 +1,48 @@
+<manifest identifier="vehicle-part-viewer" version="1.0"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="main">
+    <organization identifier="main">
+      <title>Vehicle Part Viewer</title>
+      <item identifier="item-1" identifierref="resource-1">
+        <title>Three.js SCORM Module</title>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="resource-1" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html" />
+      <file href="404.html" />
+      <file href="favicon.ico" />
+      <file href="SCORM_API_wrapper.js" />
+      <file href="index.txt" />
+      <file href="models/airplane/airplane.glb" />
+      <file href="models/airplane/airplane_BaseColor.png" />
+      <file href="models/airplane/airplane_info.json" />
+      <file href="models/airplane/airplane_Normal.png" />
+      <file href="models/airplane/airplane_ORM.png" />
+      <file href="textures/icon.png" />
+      <file href="textures/Skybox1D_Tex.HDR" />
+      <file href="_next/static/chunks/309-ac51125cefe06ed9.js" />
+      <file href="_next/static/chunks/4bd1b696-f7083ef5688de2f1.js" />
+      <file href="_next/static/chunks/517-ab00b6cbfc97339a.js" />
+      <file href="_next/static/chunks/b536a0f1-22d6daacd59193e5.js" />
+      <file href="_next/static/chunks/framework-0d635b52335dc518.js" />
+      <file href="_next/static/chunks/main-3c8e4948b0498223.js" />
+      <file href="_next/static/chunks/main-app-7500cf737beec1fe.js" />
+      <file href="_next/static/chunks/polyfills-42372ed130431b0a.js" />
+      <file href="_next/static/chunks/webpack-a629f7f3a5517537.js" />
+      <file href="_next/static/chunks/app/layout-8f883fbeefc9617d.js" />
+      <file href="_next/static/chunks/app/page-d8b2f118beea5a6b.js" />
+      <file href="_next/static/chunks/app/_not-found/page-6b6adbc0da0778cf.js" />
+      <file href="_next/static/pages/_app-d23763e3e6c904ff.js" />
+      <file href="_next/static/pages/_error-9b7125ad1a1e68fa.js" />
+      <file href="_next/static/css/0a7879b659643501.css" />
+      <file href="_next/static/media/4473ecc91f70f139-s.p.woff" />
+      <file href="_next/static/media/463dafcda517f24f-s.p.woff" />
+    </resource>
+  </resources>
+</manifest>

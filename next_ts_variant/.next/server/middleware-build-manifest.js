@@ -5,7 +5,14 @@ self.__BUILD_MANIFEST = {
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [],
+<<<<<<< Updated upstream
   "rootMainFiles": [],
+=======
+  "rootMainFiles": [
+    "static/chunks/webpack.js",
+    "static/chunks/main-app.js"
+  ],
+>>>>>>> Stashed changes
   "rootMainFilesTree": {},
   "pages": {
     "/_app": []

@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script src="./SCORM_API_wrapper.js" strategy="afterInteractive" />
+        <Script src="./SCORM_API_wrapper.js" strategy="beforeInteractive" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>

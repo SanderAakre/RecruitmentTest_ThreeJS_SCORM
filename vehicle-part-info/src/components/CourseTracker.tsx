@@ -23,34 +23,17 @@ export const CourseTrackerComponent: React.FC = () => {
 
   // SCORM initialization (runs only once)
   useEffect(() => {
-    let retryCount = 0;
-    const maxRetries = 10;
-    const initScorm = () => {
-      if (window.pipwerks?.SCORM) {
-        console.log("SCORM API found, attempting to initialize connection.");
-        const initialized = pipwerks.SCORM.init();
-        if (initialized) {
-          console.log("SCORM initialized successfully.");
-        } else {
-          console.error("SCORM initialization failed.");
-        }
+    if (window.pipwerks?.SCORM) {
+      console.log("SCORM API found, attempting to initialize connection.");
+      const initialized = pipwerks.SCORM.init();
+      if (initialized) {
+        console.log("SCORM initialized successfully.");
       } else {
-        console.error("SCORM API not found.");
-        // Retry counter to avoid infinite loop
-        const retryInitScorm = () => {
-          if (retryCount < maxRetries) {
-            retryCount++;
-            console.log(`Retrying SCORM initialization (${retryCount}/${maxRetries})...`);
-            setTimeout(initScorm, 1000);
-          } else {
-            console.error("Max retries reached. SCORM initialization failed.");
-          }
-        };
-
-        retryInitScorm();
+        console.error("SCORM initialization failed.");
       }
-    };
-    initScorm();
+    } else {
+      console.error("SCORM API not found.");
+    }
 
     // Cleanup function for SCORM
     return () => {
@@ -60,7 +43,6 @@ export const CourseTrackerComponent: React.FC = () => {
     };
   }, []);
 
-  // Set up the external function (runs every render)
   useEffect(() => {
     externalCompletePart = (partId: number) => {
       completePart(partId);

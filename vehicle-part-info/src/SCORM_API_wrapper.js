@@ -1,57 +1,24 @@
-/* eslint-disable react/display-name */
-/*global define, module */
-
-/* ===========================================================
-
-pipwerks SCORM Wrapper for JavaScript
-v1.1.20180906
-
-Created by Philip Hutchison, January 2008-2018
-https://github.com/pipwerks/scorm-api-wrapper
-
-Copyright (c) Philip Hutchison
-MIT-style license: http://pipwerks.mit-license.org/
-
-This wrapper works with both SCORM 1.2 and SCORM 2004.
-
-Inspired by APIWrapper.js, created by the ADL and
-Concurrent Technologies Corporation, distributed by
-the ADL (http://www.adlnet.gov/scorm).
-
-SCORM.API.find() and SCORM.API.get() functions based
-on ADL code, modified by Mike Rustici
-(http://www.scorm.com/resources/apifinder/SCORMAPIFinder.htm),
-further modified by Philip Hutchison
-
-=============================================================== */
-
 (function (root, factory) {
   "use strict";
 
   if (typeof define === "function" && define.amd) {
-    // AMD. Register as an anonymous module.
     define([], factory);
   } else if (typeof module === "object" && module.exports) {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like environments that support module.exports,
-    // like Node.
     module.exports = factory();
   } else {
-    // Browser globals (root is window)
     root.pipwerks = factory();
   }
 })(this, function () {
   "use strict";
 
-  var pipwerks = {}; //pipwerks 'namespace' helps ensure no conflicts with possible other "SCORM" variables
-  pipwerks.UTILS = {}; //For holding UTILS functions
-  pipwerks.debug = { isActive: true }; //Enable (true) or disable (false) for debug mode
+  var pipwerks = {};
+  pipwerks.UTILS = {};
+  pipwerks.debug = { isActive: true };
 
   pipwerks.SCORM = {
-    //Define the SCORM object
-    version: null, //Store SCORM version.
-    handleCompletionStatus: true, //Whether or not the wrapper should automatically handle the initial completion status
-    handleExitMode: true, //Whether or not the wrapper should automatically handle the exit mode
+    version: null,
+    handleCompletionStatus: true,
+    handleExitMode: true,
     API: {
       handle: null,
       isFound: false,
@@ -68,14 +35,11 @@ further modified by Philip Hutchison
     return true;
   };
 
-  // --- SCORM.API functions ------------------------------------------------- //
-
   pipwerks.SCORM.API.find = function (win) {
     var API = null,
       findAttempts = 0,
       findAttemptLimit = 500,
       traceMsgPrefix = "SCORM.API.find",
-      trace = pipwerks.UTILS.trace,
       scorm = pipwerks.SCORM;
 
     while (!win.API && !win.API_1484_11 && win.parent && win.parent != win && findAttempts <= findAttemptLimit) {
@@ -83,42 +47,38 @@ further modified by Philip Hutchison
       win = win.parent;
     }
 
-    //If SCORM version is specified by user, look for specific API
     if (scorm.version) {
       switch (scorm.version) {
         case "2004":
           if (win.API_1484_11) {
             API = win.API_1484_11;
           } else {
-            trace(traceMsgPrefix + ": SCORM version 2004 was specified by user, but API_1484_11 cannot be found.");
+            console.log(traceMsgPrefix + ": SCORM version 2004 was specified by user, but API_1484_11 cannot be found.");
           }
           break;
         case "1.2":
           if (win.API) {
             API = win.API;
           } else {
-            trace(traceMsgPrefix + ": SCORM version 1.2 was specified by user, but API cannot be found.");
+            console.log(traceMsgPrefix + ": SCORM version 1.2 was specified by user, but API cannot be found.");
           }
           break;
       }
     } else {
-      //If SCORM version not specified by user, look for APIs
       if (win.API_1484_11) {
-        //SCORM 2004-specific API.
         scorm.version = "2004";
         API = win.API_1484_11;
       } else if (win.API) {
-        //SCORM 1.2-specific API
         scorm.version = "1.2";
         API = win.API;
       }
     }
 
     if (API) {
-      trace(traceMsgPrefix + ": API found. Version: " + scorm.version);
-      trace("API: " + API);
+      console.log(traceMsgPrefix + ": API found. Version: " + scorm.version);
+      console.log("API: " + API);
     } else {
-      trace(traceMsgPrefix + ": Error finding API. \nFind attempts: " + findAttempts + ". \nFind attempt limit: " + findAttemptLimit);
+      console.log(traceMsgPrefix + ": Error finding API. \nFind attempts: " + findAttempts + ". \nFind attempt limit: " + findAttemptLimit);
     }
 
     return API;
@@ -128,8 +88,7 @@ further modified by Philip Hutchison
     var API = null,
       win = window,
       scorm = pipwerks.SCORM,
-      find = scorm.API.find,
-      trace = pipwerks.UTILS.trace;
+      find = scorm.API.find;
 
     API = find(win);
 
@@ -148,7 +107,7 @@ further modified by Philip Hutchison
     if (API) {
       scorm.API.isFound = true;
     } else {
-      trace("API.get failed: Can't find the API!");
+      console.log("API.get failed: Can't find the API!");
     }
 
     return API;
@@ -164,18 +123,15 @@ further modified by Philip Hutchison
     return API.handle;
   };
 
-  // --- pipwerks.SCORM.connection functions --------------------------------- //
-
   pipwerks.SCORM.connection.initialize = function () {
     var success = false,
       scorm = pipwerks.SCORM,
       completionStatus = scorm.data.completionStatus,
-      trace = pipwerks.UTILS.trace,
       makeBoolean = pipwerks.UTILS.StringToBoolean,
       debug = scorm.debug,
       traceMsgPrefix = "SCORM.connection.initialize ";
 
-    trace("connection.initialize called.");
+    console.log("connection.initialize called.");
 
     if (!scorm.connection.isActive) {
       var API = scorm.API.getHandle(),
@@ -199,11 +155,9 @@ further modified by Philip Hutchison
               completionStatus = scorm.status("get");
               if (completionStatus) {
                 switch (completionStatus) {
-                  //Both SCORM 1.2 and 2004
                   case "not attempted":
                     scorm.status("set", "incomplete");
                     break;
-                  //SCORM 2004 only
                   case "unknown":
                     scorm.status("set", "incomplete");
                     break;
@@ -213,22 +167,22 @@ further modified by Philip Hutchison
             }
           } else {
             success = false;
-            trace(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
+            console.log(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
           }
         } else {
           errorCode = debug.getCode();
 
           if (errorCode !== null && errorCode !== 0) {
-            trace(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
+            console.log(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
           } else {
-            trace(traceMsgPrefix + "failed: No response from server.");
+            console.log(traceMsgPrefix + "failed: No response from server.");
           }
         }
       } else {
-        trace(traceMsgPrefix + "failed: API is null.");
+        console.log(traceMsgPrefix + "failed: API is null.");
       }
     } else {
-      trace(traceMsgPrefix + "aborted: Connection already active.");
+      console.log(traceMsgPrefix + "aborted: Connection already active.");
     }
 
     return success;
@@ -239,7 +193,6 @@ further modified by Philip Hutchison
       scorm = pipwerks.SCORM,
       exitStatus = scorm.data.exitStatus,
       completionStatus = scorm.data.completionStatus,
-      trace = pipwerks.UTILS.trace,
       makeBoolean = pipwerks.UTILS.StringToBoolean,
       debug = scorm.debug,
       traceMsgPrefix = "SCORM.connection.terminate ";
@@ -287,25 +240,22 @@ further modified by Philip Hutchison
             scorm.connection.isActive = false;
           } else {
             errorCode = debug.getCode();
-            trace(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
+            console.log(traceMsgPrefix + "failed. \nError code: " + errorCode + " \nError info: " + debug.getInfo(errorCode));
           }
         }
       } else {
-        trace(traceMsgPrefix + "failed: API is null.");
+        console.log(traceMsgPrefix + "failed: API is null.");
       }
     } else {
-      trace(traceMsgPrefix + "aborted: Connection already terminated.");
+      console.log(traceMsgPrefix + "aborted: Connection already terminated.");
     }
 
     return success;
   };
 
-  // --- pipwerks.SCORM.data functions --------------------------------------- //
-
   pipwerks.SCORM.data.get = function (parameter) {
     var value = null,
       scorm = pipwerks.SCORM,
-      trace = pipwerks.UTILS.trace,
       debug = scorm.debug,
       traceMsgPrefix = "SCORM.data.get('" + parameter + "') ";
 
@@ -338,16 +288,16 @@ further modified by Philip Hutchison
               break;
           }
         } else {
-          trace(traceMsgPrefix + "failed. \nError code: " + errorCode + "\nError info: " + debug.getInfo(errorCode));
+          console.log(traceMsgPrefix + "failed. \nError code: " + errorCode + "\nError info: " + debug.getInfo(errorCode));
         }
       } else {
-        trace(traceMsgPrefix + "failed: API is null.");
+        console.log(traceMsgPrefix + "failed: API is null.");
       }
     } else {
-      trace(traceMsgPrefix + "failed: API connection is inactive.");
+      console.log(traceMsgPrefix + "failed: API connection is inactive.");
     }
 
-    trace(traceMsgPrefix + " value: " + value);
+    console.log(traceMsgPrefix + " value: " + value);
 
     return String(value);
   };
@@ -355,7 +305,6 @@ further modified by Philip Hutchison
   pipwerks.SCORM.data.set = function (parameter, value) {
     var success = false,
       scorm = pipwerks.SCORM,
-      trace = pipwerks.UTILS.trace,
       makeBoolean = pipwerks.UTILS.StringToBoolean,
       debug = scorm.debug,
       traceMsgPrefix = "SCORM.data.set('" + parameter + "') ";
@@ -381,16 +330,16 @@ further modified by Philip Hutchison
         } else {
           errorCode = debug.getCode();
 
-          trace(traceMsgPrefix + "failed. \nError code: " + errorCode + ". \nError info: " + debug.getInfo(errorCode));
+          console.log(traceMsgPrefix + "failed. \nError code: " + errorCode + ". \nError info: " + debug.getInfo(errorCode));
         }
       } else {
-        trace(traceMsgPrefix + "failed: API is null.");
+        console.log(traceMsgPrefix + "failed: API is null.");
       }
     } else {
-      trace(traceMsgPrefix + "failed: API connection is inactive.");
+      console.log(traceMsgPrefix + "failed: API connection is inactive.");
     }
 
-    trace(traceMsgPrefix + " value: " + value);
+    console.log(traceMsgPrefix + " value: " + value);
 
     return success;
   };
@@ -398,7 +347,6 @@ further modified by Philip Hutchison
   pipwerks.SCORM.data.save = function () {
     var success = false,
       scorm = pipwerks.SCORM,
-      trace = pipwerks.UTILS.trace,
       makeBoolean = pipwerks.UTILS.StringToBoolean,
       traceMsgPrefix = "SCORM.data.save failed";
 
@@ -415,10 +363,10 @@ further modified by Philip Hutchison
             break;
         }
       } else {
-        trace(traceMsgPrefix + ": API is null.");
+        console.log(traceMsgPrefix + ": API is null.");
       }
     } else {
-      trace(traceMsgPrefix + ": API connection is inactive.");
+      console.log(traceMsgPrefix + ": API connection is inactive.");
     }
 
     return success;
@@ -427,7 +375,6 @@ further modified by Philip Hutchison
   pipwerks.SCORM.status = function (action, status) {
     var success = false,
       scorm = pipwerks.SCORM,
-      trace = pipwerks.UTILS.trace,
       traceMsgPrefix = "SCORM.getStatus failed",
       cmi = "";
 
@@ -451,28 +398,25 @@ further modified by Philip Hutchison
             success = scorm.data.set(cmi, status);
           } else {
             success = false;
-            trace(traceMsgPrefix + ": status was not specified.");
+            console.log(traceMsgPrefix + ": status was not specified.");
           }
 
           break;
 
         default:
           success = false;
-          trace(traceMsgPrefix + ": no valid action was specified.");
+          console.log(traceMsgPrefix + ": no valid action was specified.");
       }
     } else {
-      trace(traceMsgPrefix + ": action was not specified.");
+      console.log(traceMsgPrefix + ": action was not specified.");
     }
 
     return success;
   };
 
-  // --- pipwerks.SCORM.debug functions -------------------------------------- //
-
   pipwerks.SCORM.debug.getCode = function () {
     var scorm = pipwerks.SCORM,
       API = scorm.API.getHandle(),
-      trace = pipwerks.UTILS.trace,
       code = 0;
 
     if (API) {
@@ -485,7 +429,7 @@ further modified by Philip Hutchison
           break;
       }
     } else {
-      trace("SCORM.debug.getCode failed: API is null.");
+      console.log("SCORM.debug.getCode failed: API is null.");
     }
 
     return code;
@@ -494,7 +438,6 @@ further modified by Philip Hutchison
   pipwerks.SCORM.debug.getInfo = function (errorCode) {
     var scorm = pipwerks.SCORM,
       API = scorm.API.getHandle(),
-      trace = pipwerks.UTILS.trace,
       result = "";
 
     if (API) {
@@ -507,7 +450,7 @@ further modified by Philip Hutchison
           break;
       }
     } else {
-      trace("SCORM.debug.getInfo failed: API is null.");
+      console.log("SCORM.debug.getInfo failed: API is null.");
     }
 
     return String(result);
@@ -516,7 +459,6 @@ further modified by Philip Hutchison
   pipwerks.SCORM.debug.getDiagnosticInfo = function (errorCode) {
     var scorm = pipwerks.SCORM,
       API = scorm.API.getHandle(),
-      trace = pipwerks.UTILS.trace,
       result = "";
 
     if (API) {
@@ -529,13 +471,11 @@ further modified by Philip Hutchison
           break;
       }
     } else {
-      trace("SCORM.debug.getDiagnosticInfo failed: API is null.");
+      console.log("SCORM.debug.getDiagnosticInfo failed: API is null.");
     }
 
     return String(result);
   };
-
-  // --- Shortcuts! ---------------------------------------------------------- //
 
   pipwerks.SCORM.init = pipwerks.SCORM.connection.initialize;
   pipwerks.SCORM.get = pipwerks.SCORM.data.get;
@@ -543,13 +483,9 @@ further modified by Philip Hutchison
   pipwerks.SCORM.save = pipwerks.SCORM.data.save;
   pipwerks.SCORM.quit = pipwerks.SCORM.connection.terminate;
 
-  // --- pipwerks.UTILS functions -------------------------------------------- //
-
   pipwerks.UTILS.StringToBoolean = function (value) {
     var t = typeof value;
     switch (t) {
-      //typeof new String("true") === "object", so handle objects as string via fall-through.
-      //See https://github.com/pipwerks/scorm-api-wrapper/issues/3
       case "object":
       case "string":
         return /(true|1)/i.test(value);
@@ -561,16 +497,6 @@ further modified by Philip Hutchison
         return null;
       default:
         return false;
-    }
-  };
-
-  pipwerks.UTILS.trace = function (msg) {
-    if (pipwerks.debug.isActive) {
-      if (window.console && window.console.log) {
-        window.console.log(msg);
-      } else {
-        //alert(msg);
-      }
     }
   };
 

@@ -23,16 +23,34 @@ export const CourseTrackerComponent: React.FC = () => {
 
   // SCORM initialization (runs only once)
   useEffect(() => {
-    if (window.pipwerks?.SCORM) {
-      const initialized = pipwerks.SCORM.init();
-      if (initialized) {
-        console.log("SCORM initialized successfully.");
+    let retryCount = 0;
+    const maxRetries = 10;
+    const initScorm = () => {
+      if (window.pipwerks?.SCORM) {
+        console.log("SCORM API found, attempting to initialize connection.");
+        const initialized = pipwerks.SCORM.init();
+        if (initialized) {
+          console.log("SCORM initialized successfully.");
+        } else {
+          console.error("SCORM initialization failed.");
+        }
       } else {
-        console.error("SCORM initialization failed.");
+        console.error("SCORM API not found.");
+        // Retry counter to avoid infinite loop
+        const retryInitScorm = () => {
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying SCORM initialization (${retryCount}/${maxRetries})...`);
+            setTimeout(initScorm, 1000);
+          } else {
+            console.error("Max retries reached. SCORM initialization failed.");
+          }
+        };
+
+        retryInitScorm();
       }
-    } else {
-      console.error("SCORM API not found.");
-    }
+    };
+    initScorm();
 
     // Cleanup function for SCORM
     return () => {
@@ -62,11 +80,26 @@ export const CourseTrackerComponent: React.FC = () => {
 
   const updateProgressDisplay = (partsViewed: number) => {
     if (partsViewed === totalParts) {
+      console.log("All parts viewed! Attempting to set SCORM status to completed.");
       setCourseStatus("Course completed!");
       document.querySelector(".course-status")?.classList.replace("bg-gray-700", "bg-green-500");
+
       if (window.pipwerks?.SCORM) {
+        console.log("SCORM API found, checking connection activation status.");
+        if (!pipwerks.SCORM.connection.isActive) {
+          console.log("SCORM connection is not active. Reinitializing connection.");
+          const reinitialized = pipwerks.SCORM.init();
+          if (!reinitialized) {
+            console.error("Failed to reinitialize SCORM connection.");
+            return;
+          }
+        } else {
+          console.log("SCORM connection is active.");
+        }
         pipwerks.SCORM.set("cmi.core.lesson_status", "completed");
         pipwerks.SCORM.save();
+      } else {
+        console.error("SCORM API not found.");
       }
     } else {
       setCourseStatus(`${partsViewed}/${totalParts} parts viewed`);

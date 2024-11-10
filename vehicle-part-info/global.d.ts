@@ -7,6 +7,9 @@ interface Window {
       get(param: string): string;
       save(): boolean;
       quit(): boolean;
+      connection: {
+        isActive: boolean;
+      };
     };
   };
 }
@@ -18,5 +21,8 @@ declare const pipwerks: {
     get(param: string): string;
     save(): boolean;
     quit(): boolean;
+    connection: {
+      isActive: boolean;
+    };
   };
 };

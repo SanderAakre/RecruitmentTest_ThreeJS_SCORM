@@ -26,6 +26,7 @@
       <file href="models/airplane/airplane_ORM.png" />
       <file href="textures/icon.png" />
       <file href="textures/Skybox1D_Tex.HDR" />
+      <!-- Build files below must be updated to match the build output  -->
       <file href="_next/static/chunks/309-ac51125cefe06ed9.js" />
       <file href="_next/static/chunks/4bd1b696-f7083ef5688de2f1.js" />
       <file href="_next/static/chunks/517-ab00b6cbfc97339a.js" />

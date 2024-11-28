@@ -15,14 +15,16 @@
   <resources>
     <resource identifier="resource-1" type="webcontent" adlcp:scormtype="sco" href="index.html">
       <file href="index.html" />
-      <file href="icon.png" />
-      <file href="assets/index-.js" />
+      <file href="SCORM_API_wrapper.js" />
+      <file href="assets/icon-InPcwOn2.png" />
+      <file href="assets/index-oEyEU82t.js" />
       <file href="models/airplane/airplane.glb" />
       <file href="models/airplane/airplane_BaseColor.png" />
       <file href="models/airplane/airplane_info.json" />
       <file href="models/airplane/airplane_Normal.png" />
       <file href="models/airplane/airplane_ORM.png" />
       <file href="textures/hdr/Skybox1D_Tex.HDR" />
+      <file href="textures/icon.png" />
     </resource>
   </resources>
 </manifest>
